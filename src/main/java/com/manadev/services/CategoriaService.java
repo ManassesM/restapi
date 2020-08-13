@@ -24,7 +24,7 @@ public class CategoriaService {
 	@Autowired
 	private CategoriaRepository repo;
 
-	public Categoria findById(Integer id) {
+	public Categoria find(Integer id) {
 		Optional<Categoria> obj = repo.findById(id);
 		return obj.orElseThrow(
 				() -> new ObjectNotFound("ID não encontrado: " + id + ", Type: " + Categoria.class.getName()));
@@ -61,7 +61,7 @@ public class CategoriaService {
 
 	// aux
 
-	public Categoria fromDto(CategoriaDTO objDTO) {
+	public Categoria fromDTO(CategoriaDTO objDTO) {
 		return new Categoria(objDTO.getId(), objDTO.getNome());
 	}
 }

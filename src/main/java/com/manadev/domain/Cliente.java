@@ -48,7 +48,7 @@ public class Cliente implements Serializable {
 		this.nome = nome;
 		this.email = email;
 		this.cpfOuCnpj = cpfOuCnpj;
-		this.tipo = tipo.getCode();
+		this.tipo = (tipo == null) ? null : tipo.getCode();
 	}
 
 	public Integer getId() {
@@ -102,7 +102,7 @@ public class Cliente implements Serializable {
 	public List<Pedido> getPedidos() {
 		return pedidos;
 	}
-	
+
 	public List<Endereco> getEnderecos() {
 		return enderecos;
 	}
