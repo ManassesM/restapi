@@ -26,7 +26,7 @@ import com.manadev.services.exceptions.EmptyResultAcess;
 import com.manadev.services.exceptions.ObjectNotFound;
 
 @Service
-public class ClienteService {
+public class ClienteService {	
 
 	@Autowired
 	private ClienteRepository repo;
@@ -59,7 +59,7 @@ public class ClienteService {
 		try {
 			repo.deleteById(id);
 		} catch (DataIntegrityViolationException e) {
-			throw new DataIntegrityException("Você não pode remover clientes com entidades relacionadas.");
+			throw new DataIntegrityException("Você não pode remover clientes com produtos relacionadas.");
 		} catch (EmptyResultDataAccessException e) {
 			throw new EmptyResultAcess("Cliente não encontrada.");
 		}
