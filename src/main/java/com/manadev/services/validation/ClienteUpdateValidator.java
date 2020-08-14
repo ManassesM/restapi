@@ -2,45 +2,46 @@ package com.manadev.services.validation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.servlet.HandlerMapping;
 
-import com.manadev.domain.enums.TipoCliente;
-import com.manadev.dto.ClienteNewDTO;
+import com.manadev.domain.Cliente;
+import com.manadev.dto.ClienteDTO;
 import com.manadev.repositories.ClienteRepository;
 import com.manadev.resources.exceptions.FieldMessage;
-import com.manadev.services.validation.utils.BR;
 
-public class ClienteInsertValidator implements ConstraintValidator<ClienteInsert, ClienteNewDTO> {
+public class ClienteUpdateValidator implements ConstraintValidator<ClienteUpdate, ClienteDTO> {
+
+	@Autowired
+	private HttpServletRequest request;
 
 	@Autowired
 	private ClienteRepository repo;
 
 	@Override
-	public void initialize(ClienteInsert ann) {
+	public void initialize(ClienteUpdate ann) {
 	}
 
 	@Override
-	public boolean isValid(ClienteNewDTO objDto, ConstraintValidatorContext context) {
-		
+	public boolean isValid(ClienteDTO objDto, ConstraintValidatorContext context) {
+
+		@SuppressWarnings("unchecked")
+		Map<String, String> map = (Map<String, String>) request
+				.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
+		Integer uriId = Integer.parseInt(map.get("id"));
+
 		// testes de validações
 		List<FieldMessage> list = new ArrayList<>();
 
-		// CPF
-		if (objDto.getTipo().equals(TipoCliente.PESSOAFISICA.getCode()) && !BR.isValidCPF(objDto.getCpfOuCnpj())) {
-			list.add(new FieldMessage("cpfOuCnpj", "CPF inválido"));
-		}
-		
-		// CNPJ
-		if (objDto.getTipo().equals(TipoCliente.PESSOAJURIDICA.getCode()) && !BR.isValidCNPJ(objDto.getCpfOuCnpj())) {
-			list.add(new FieldMessage("cpfOuCnpj", "CNPJ inválido"));
-		}
-		
-		// EMAIL REPETIDO POST
-		if (repo.findByEmail(objDto.getEmail()) != null) {
+		// EMAIL REPETIDO PUT
+		Cliente aux = repo.findByEmail(objDto.getEmail());
+		if (aux != null && !aux.getId().equals(uriId)) {
 			list.add(new FieldMessage("email", "Email já existente"));
 		}
 
