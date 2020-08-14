@@ -30,6 +30,11 @@ public class CategoriaService {
 				() -> new ObjectNotFound("ID não encontrado: " + id + ", Type: " + Categoria.class.getName()));
 	}
 
+	public Categoria insert(Categoria obj) {
+		obj.setId(null);
+		return repo.save(obj);
+	}
+
 	public Categoria update(Categoria obj) {
 		Categoria newObj = find(obj.getId());
 		updateData(newObj, obj);
@@ -64,4 +69,5 @@ public class CategoriaService {
 	private void updateData(Categoria newObj, Categoria obj) {
 		newObj.setNome(obj.getNome());
 	}
+
 }
