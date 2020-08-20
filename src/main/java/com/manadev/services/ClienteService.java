@@ -11,6 +11,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.manadev.domain.Cidade;
@@ -33,7 +34,10 @@ public class ClienteService {
 
 	@Autowired
 	private EnderecoRepository repoEnd;
-
+	
+	@Autowired
+	private BCryptPasswordEncoder pe;
+	
 	public Cliente find(Integer id) {
 		Optional<Cliente> obj = repo.findById(id);
 		return obj.orElseThrow(
@@ -77,14 +81,14 @@ public class ClienteService {
 	// aux
 
 	public Cliente fromDTO(ClienteDTO objDTO) {
-		return new Cliente(objDTO.getId(), objDTO.getNome(), objDTO.getEmail(), null, null);
+		return new Cliente(objDTO.getId(), objDTO.getNome(), objDTO.getEmail(), null, null, null);
 	}
 
 	public Cliente fromDTO(ClienteNewDTO objDTO) {
 
 		// cliente
 		Cliente cli = new Cliente(objDTO.getId(), objDTO.getNome(), objDTO.getEmail(), objDTO.getCpfOuCnpj(),
-				TipoCliente.toEnum((objDTO.getTipo())));
+				TipoCliente.toEnum((objDTO.getTipo())), pe.encode(objDTO.getSenha()));
 
 		// cidade
 		Cidade cid = new Cidade(objDTO.getId(), null, null);
