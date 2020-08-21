@@ -17,11 +17,14 @@ import org.springframework.stereotype.Service;
 import com.manadev.domain.Cidade;
 import com.manadev.domain.Cliente;
 import com.manadev.domain.Endereco;
+import com.manadev.domain.enums.Perfil;
 import com.manadev.domain.enums.TipoCliente;
 import com.manadev.dto.ClienteDTO;
 import com.manadev.dto.ClienteNewDTO;
 import com.manadev.repositories.ClienteRepository;
 import com.manadev.repositories.EnderecoRepository;
+import com.manadev.security.UserSS;
+import com.manadev.services.exceptions.AuthorizationException;
 import com.manadev.services.exceptions.DataIntegrityException;
 import com.manadev.services.exceptions.EmptyResultAcess;
 import com.manadev.services.exceptions.ObjectNotFound;
@@ -39,6 +42,12 @@ public class ClienteService {
 	private BCryptPasswordEncoder pe;
 	
 	public Cliente find(Integer id) {
+		
+		UserSS user = UserService.authenticated();
+		if (user == null || !user.hasRole(Perfil.ADMIN) && !id.equals(user.getId())) {
+			throw new AuthorizationException("Acesso negado");
+		}
+		
 		Optional<Cliente> obj = repo.findById(id);
 		return obj.orElseThrow(
 				() -> new ObjectNotFound("ID não encontrado: " + id + ", Type: " + Cliente.class.getName()));
