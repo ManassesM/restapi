@@ -1,5 +1,6 @@
 package com.manadev.services;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.manadev.domain.Cidade;
 import com.manadev.domain.Cliente;
@@ -30,24 +32,27 @@ import com.manadev.services.exceptions.EmptyResultAcess;
 import com.manadev.services.exceptions.ObjectNotFound;
 
 @Service
-public class ClienteService {	
+public class ClienteService {
 
 	@Autowired
 	private ClienteRepository repo;
 
 	@Autowired
 	private EnderecoRepository repoEnd;
-	
+
 	@Autowired
 	private BCryptPasswordEncoder pe;
-	
+
+	@Autowired
+	private S3Service s3Service;
+
 	public Cliente find(Integer id) {
-		
+
 		UserSS user = UserService.authenticated();
 		if (user == null || !user.hasRole(Perfil.ADMIN) && !id.equals(user.getId())) {
 			throw new AuthorizationException("Acesso negado");
 		}
-		
+
 		Optional<Cliente> obj = repo.findById(id);
 		return obj.orElseThrow(
 				() -> new ObjectNotFound("ID não encontrado: " + id + ", Type: " + Cliente.class.getName()));
@@ -124,4 +129,7 @@ public class ClienteService {
 		newObj.setEmail(obj.getEmail());
 	}
 
+	public URI uploadProfilePicture(MultipartFile multipartFile) {
+		return s3Service.uploadFile(multipartFile);
+	}
 }
