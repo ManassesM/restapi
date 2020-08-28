@@ -38,7 +38,7 @@ public class ClienteService {
 
 	@Autowired
 	private ClienteRepository repo;
-	
+
 	@Autowired
 	private EnderecoRepository repoEnd;
 
@@ -53,7 +53,7 @@ public class ClienteService {
 
 	@Value("${img.prefix.client.profile}")
 	private String prefix;
-	
+
 	@Value("${img.profile.size}")
 	private Integer size;
 
@@ -96,6 +96,22 @@ public class ClienteService {
 
 	public List<Cliente> findAll() {
 		return repo.findAll();
+	}
+
+	public Cliente findByEmail(String email) {
+
+		UserSS user = UserService.authenticated();
+		if (user == null || !user.hasRole(Perfil.ADMIN) && !email.equals(user.getUsername())) {
+			throw new AuthorizationException("Acesso negado");
+		}
+
+		Cliente obj = repo.findByEmail(email);
+		if (obj == null) {
+			throw new ObjectNotFound(
+					"Objeto não encontrado! Id: " + user.getId() + ", Tipo " + Cliente.class.getName());
+		}
+		return obj;
+
 	}
 
 	public Page<Cliente> findPage(Integer page, Integer size, String direction, String orderBy) {
