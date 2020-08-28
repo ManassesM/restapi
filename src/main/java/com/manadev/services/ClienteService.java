@@ -40,9 +40,6 @@ public class ClienteService {
 	private ClienteRepository repo;
 	
 	@Autowired
-	private ClienteService service;
-
-	@Autowired
 	private EnderecoRepository repoEnd;
 
 	@Autowired
@@ -53,10 +50,13 @@ public class ClienteService {
 
 	@Autowired
 	private ImageService imageService;
-	
+
 	@Value("${img.prefix.client.profile}")
 	private String prefix;
 	
+	@Value("${img.profile.size}")
+	private Integer size;
+
 	public Cliente find(Integer id) {
 
 		UserSS user = UserService.authenticated();
@@ -141,15 +141,18 @@ public class ClienteService {
 	}
 
 	public URI uploadProfilePicture(MultipartFile multipartFile) {
-		
+
 		UserSS user = UserService.authenticated();
-		if(user == null) {
+		if (user == null) {
 			throw new AuthorizationException("Acesso negado");
 		}
-		
+
 		BufferedImage jpgImage = imageService.getJpgImageFromFile(multipartFile);
+		jpgImage = imageService.cropSquare(jpgImage);
+		jpgImage = imageService.resize(jpgImage, size);
+
 		String fileName = prefix + user.getId() + ".jpg";
-		
+
 		return s3Service.uploadFile(imageService.getInputStream(jpgImage, "jog"), fileName, "image");
 	}
 }
